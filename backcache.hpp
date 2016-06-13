@@ -107,9 +107,9 @@ public:
 
 	iterator erase(iterator first, iterator last)
 	{
-		PNAME
 		iterator it=Base::erase(first,last);
-		_range.Set(first-begin(),size()-1);
+		if (first!=last)
+			_range.Set(first-begin(),size()-1);
 		return it;
 	}
 
@@ -155,7 +155,7 @@ public:
 		return *this;
 	}
 
-	/*DirtVector& operator=(const Base& o)
+	/*BackCache& operator=(const Base& o)
 	{
 		Base::operator=(o);
 		SetFullRange();
@@ -209,7 +209,7 @@ public:
 	}
 
 	// =========================================================================
-	// DirtVector
+	// BackCache
 	// =========================================================================
 public:
 	size_type RangeSize() const
@@ -220,12 +220,11 @@ public:
 
 	bool Pending() const
 	{
-		return _range.Pending();
+		return _range;
 	}
 
 	void Reset()
 	{
-		PNAME
 		_range.Reset();
 	}
 
@@ -261,6 +260,7 @@ private:
 	class Range
 	{
 	public:
+		// Add elements to current range.
 		void Add(size_type n)
 		{
 			if (n<_from) _from=n;
@@ -269,26 +269,34 @@ private:
 			std::cout<<"Add("<<n<<")\n";
 #endif
 		}
+		void Add(size_type f,size_type t)
+		{
+#ifdef DEBUG_BB
+			std::cout<<"AddRange("<<f<<", "<<t<<")\n";
+#endif
+			if (f<_from) _from=f;
+			if (t>_to) _to=t;
+#ifdef DEBUG_BB
+			std::cout<<"RANGE is now "<<_from<<" to "<<_to<<"\n";
+#endif
+		}
 		size_type From() const
 		{
 			return _from;
-		}
-		bool Pending() const
-		{
-			return _from<=_to;
 		}
 		void Reset()
 		{
 			_from=MAXSIZE;
 			_to=0;
 		}
+		// Redefine the range.
 		void Set(size_type f,size_type t)
 		{
 #ifdef DEBUG_BB
 			std::cout<<"SetRange("<<f<<", "<<t<<")\n";
 #endif
-			if (f<_from) _from=f;
-			if (t>_to) _to=t;
+			_from=f;
+			_to=t;
 #ifdef DEBUG_BB
 			std::cout<<"RANGE is now "<<_from<<" to "<<_to<<"\n";
 #endif
@@ -303,16 +311,31 @@ private:
 		{
 			return _to;
 		}
+		operator bool() const // True if pending, valid range.
+		{
+			return _from<=_to;
+		}
 	private:
 		// Alias to biggest size_t.
 		static constexpr size_type MAXSIZE=std::numeric_limits<size_type>::max();
-		// Dirty range.
+		// Range.
 		size_type _from{MAXSIZE},_to{0};
 	} _range{};
 	/*
 		Class member initialization.used so we don't have to
 		rewrite all the constructors.
 	*/
+#ifdef DEBUG_BB
+public:
+	size_t RangeFrom() const
+	{
+		return _range.From();
+	}
+	size_t RangeTo() const
+	{
+		return _range.To();
+	}
+#endif
 };
 
 // Compare to normal vector
