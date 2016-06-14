@@ -101,14 +101,19 @@ public:
 	{
 		PNAME
 		iterator it=Base::erase(pos);
-		_range.Set(it-begin(),size()-1);
+		if (empty())
+			_range.Reset();
+		else
+			_range.Set(it-begin(),size()-1);
 		return it;
 	}
 
 	iterator erase(iterator first, iterator last)
 	{
 		iterator it=Base::erase(first,last);
-		if (first!=last)
+		if (empty())
+			_range.Reset();
+		else if (first!=last)
 			_range.Set(first-begin(),size()-1);
 		return it;
 	}
@@ -183,14 +188,14 @@ public:
 	{
 		PNAME
 		Base::push_back(x);
-		_range.Set(size()-1,size()-1);
+		_range.Add(size()-1,size()-1);
 	}
 
 	void push_back(T&& x)
 	{
 		PNAME
 		Base::push_back(x);
-		_range.Set(size()-1,size()-1);
+		_range.Add(size()-1,size()-1);
 	}
 
 	// Resize. Fix the range.
@@ -232,6 +237,8 @@ public:
 	{
 		if (!empty())
 			_range.Set(0,size()-1);
+		else
+			_range.Reset();
 	}
 
 	void Info() const

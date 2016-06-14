@@ -3,31 +3,28 @@
 
 using namespace std;
 
-void Test(const char* what,BackCache<int>& tested,const vector<int> expected,bool pending)
+void TestResult(const BackCache<int>& tested,bool test)
 {
-	cout<<what<<": ";
-	bool test=(tested==expected)&&(tested.Pending()==pending);
 	if (test)
 		cout<<"OK\n";
 	else
 		cout<<"!!! ERROR !!!\n";
 	tested.Info();
-	tested.Reset();
 	cout<<"--------------------------------------------------\n";
 }
 
-void Test(const char* what,BackCache<int>& tested,const vector<int> expected,const pair<size_t,size_t> range)
+void Test(const char* what,const BackCache<int>& tested,const vector<int> expected,bool pending)
 {
 	cout<<what<<": ";
+	TestResult(tested,tested==expected&&tested.Pending()==pending);
+}
 
-	bool test=(tested==expected)&&
-			  (tested.RangeFrom()==range.first&&tested.RangeTo()==range.second);
-	if (test)
-		cout<<"OK\n";
-	else
-		cout<<"!!! ERROR !!!\n";
-	tested.Info();
-	cout<<"--------------------------------------------------\n";
+void Test(const char* what,const BackCache<int>& tested,const vector<int> expected,const pair<size_t,size_t> range)
+{
+	cout<<what<<": ";
+	TestResult(tested,(tested==expected)&&
+			  (tested.RangeFrom()==range.first&&tested.RangeTo()==range.second));
+
 }
 
 int main()
@@ -36,7 +33,7 @@ int main()
 	const BackCache<int>& cbc=bc;
 
 	// Contructor
-	// Range is reset/false o n construction.
+	// Range is reset/false on construction.
 	Test("Constructor",bc, {1,2,3,4,5},false);
 
 	// Assign
@@ -44,11 +41,16 @@ int main()
 	{
 		bc.assign(4,12);
 		Test("assign(size_type,value_type)",bc, {12,12,12,12},{0,3});
-		vector<int> other{4,5};
+		vector<int> other{4,5,6};
 		bc.assign(other.begin(),other.end());
-		Test("assign(it,it)",bc, {4,5},{0,1});
+		Test("assign(it,it)",bc, {4,5,6},{0,2});
+		// Assigning nothing resets the range.
+		bc.assign(other.begin()+1,other.begin()+1);
+		Test("assign(it,it) where it's are equal",bc, {},false);
 		bc.assign({1,2,3});
 		Test("assign(initlist)",bc, {1,2,3},{0,2});
+		bc.assign({});
+		Test("assign(empty initlist)",bc, {},false);
 	}
 	// Erase
 	// Range enlarged and boundaries are corrected as needed.
@@ -60,10 +62,15 @@ int main()
 		Test("erase(iterator)",bc, {4,2,3,5,6,7},{1,5});
 		bc.erase(bc.begin()+1,bc.begin()+3);
 		Test("erase(iterator,iterator)",bc, {4,5,6,7},{1,3});
-		bc.erase(bc.begin()+2,bc.begin()+2); // NO OP
-		Test("erase(nothing)",bc, {4,5,6,7},{1,3});
-
-		//bc.erase(bc.end());
+		// NO OP does nothing.
+		bc.erase(bc.begin()+2,bc.begin()+2);
+		Test("erase(it,it) when equal (NOP)",bc, {4,5,6,7},{1,3});
+		// Erase all
+		bc.erase(bc.begin(),bc.end());
+		Test("erase(it,it) everything",bc,{},false);
+		bc.push_back(9);
+		bc.erase(bc.begin());
+		Test("erase(it) last element",bc,{},false);
 	}
 	// Insert
 	{
