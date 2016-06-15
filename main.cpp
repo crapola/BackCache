@@ -8,7 +8,7 @@ void TestResult(const BackCache<int>& tested,bool test)
 	if (test)
 		cout<<"OK\n";
 	else
-		cout<<"!!! ERROR !!!\n";
+		cout<<"\n***\n!!! ERROR !!!\n***\n";
 	tested.Info();
 	cout<<"--------------------------------------------------\n";
 }
@@ -71,6 +71,28 @@ int main()
 		bc.push_back(9);
 		bc.erase(bc.begin());
 		Test("erase(it) last element",bc,{},false);
+		// Check if keep previous state correctly
+		bc={5,0,0,5,5,5,5,5};
+		bc[1]=5;
+		Test("...",bc,{5,5,0,5,5,5,5,5},{1,1});
+		bc.erase(bc.begin()+3,bc.end());
+		Test("erase(it,it) keep previous range",bc,{5,5,0},{1,2});
+	}
+	// Clear
+	// Range reset.
+	{
+		bc.clear();
+		Test("clear",bc,{},false);
+	}
+	// Data
+	// Non const access should error.
+	{
+		bc={1,2,3};
+		// int* dat=bc.data(); // error
+		const int* dat=bc.data(); // ok
+		std::cout<<"Data "<<dat[0]<<"\n";
+		// dat[0]=9;// <-- error...
+		bc.Info();
 	}
 	// Insert
 	{

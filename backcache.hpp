@@ -26,6 +26,7 @@ class BackCache: protected std::vector<T,Ta>
 
 public:
 	using typename Base::reference;
+	using typename Base::const_pointer;
 	using typename Base::const_reference;
 	using typename Base::iterator; //make const too!
 	using typename Base::const_iterator;
@@ -50,10 +51,10 @@ public:
 	using Base::capacity;
 	using Base::cbegin;
 	using Base::cend;
-	using Base::clear;
+	//    Base::clear;
 	using Base::crbegin;
 	using Base::crend;
-	using Base::data;
+	//    Base::data;
 	//using Base::emplace;
 	// using Base::emplace_back;
 	using Base::empty;
@@ -95,6 +96,21 @@ public:
 		SetFull();
 	}
 
+	// Clear
+
+	void clear()
+	{
+		Base::clear();
+		_range.Reset();
+	}
+
+	// Data
+
+	const_pointer data() const
+	{
+		return Base::data();
+	}
+
 	// Erase. Fixes the range.
 
 	iterator erase(iterator pos)
@@ -104,7 +120,9 @@ public:
 		if (empty())
 			_range.Reset();
 		else
-			_range.Set(it-begin(),size()-1);
+		{
+			_range.Add(it-begin(),size()-1);
+		}
 		return it;
 	}
 
@@ -114,7 +132,10 @@ public:
 		if (empty())
 			_range.Reset();
 		else if (first!=last)
-			_range.Set(first-begin(),size()-1);
+		{
+			_range.Add(first-begin());
+			_range.Cap(size()-1);
+		}
 		return it;
 	}
 
@@ -267,7 +288,7 @@ private:
 	class Range
 	{
 	public:
-		// Add elements to current range.
+		// Add elements to current range (boolean union).
 		void Add(size_type n)
 		{
 			if (n<_from) _from=n;
@@ -287,6 +308,11 @@ private:
 			std::cout<<"RANGE is now "<<_from<<" to "<<_to<<"\n";
 #endif
 		}
+		// Cap end of range to s
+		void Cap(size_type s)
+		{
+			_to=(_to>s)?s:_to;
+		}
 		size_type From() const
 		{
 			return _from;
@@ -296,7 +322,7 @@ private:
 			_from=MAXSIZE;
 			_to=0;
 		}
-		// Redefine the range.
+		// Redefine the range, ingoring previous state.
 		void Set(size_type f,size_type t)
 		{
 #ifdef DEBUG_BB
