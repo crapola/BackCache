@@ -105,23 +105,25 @@ public:
 	}
 
 	// Data
+	// Only const access is allowed.
 
 	const_pointer data() const
 	{
 		return Base::data();
 	}
 
-	// Erase. Fixes the range.
+	// Erase
+	// Fixes the range, always extend to last element.
 
 	iterator erase(iterator pos)
 	{
-		PNAME
 		iterator it=Base::erase(pos);
 		if (empty())
 			_range.Reset();
 		else
 		{
-			_range.Add(it-begin(),size()-1);
+			_range.Add(it-begin());
+			_range._to=size()-1;
 		}
 		return it;
 	}
@@ -134,7 +136,7 @@ public:
 		else if (first!=last)
 		{
 			_range.Add(first-begin());
-			_range.Cap(size()-1);
+			_range._to=size()-1;
 		}
 		return it;
 	}
@@ -285,7 +287,7 @@ public:
 	}
 
 private:
-	class Range
+	struct Range
 	{
 	public:
 		// Add elements to current range (boolean union).
@@ -334,7 +336,6 @@ private:
 			std::cout<<"RANGE is now "<<_from<<" to "<<_to<<"\n";
 #endif
 		}
-
 		size_type Size() const
 		{
 			if (!Pending()) return 0;
@@ -348,7 +349,6 @@ private:
 		{
 			return _from<=_to;
 		}
-	private:
 		// Alias to biggest size_t.
 		static constexpr size_type MAXSIZE=std::numeric_limits<size_type>::max();
 		// Range.

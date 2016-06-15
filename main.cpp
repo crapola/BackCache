@@ -77,6 +77,11 @@ int main()
 		Test("...",bc,{5,5,0,5,5,5,5,5},{1,1});
 		bc.erase(bc.begin()+3,bc.end());
 		Test("erase(it,it) keep previous range",bc,{5,5,0},{1,2});
+		//
+		bc={1,2,3,3};
+		bc[3]=4;
+		bc.erase(bc.begin());
+		Test("erase(it) special case",bc,{2,3,4},{0,2});
 	}
 	// Clear
 	// Range reset.
