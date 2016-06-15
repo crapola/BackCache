@@ -24,14 +24,16 @@ class BackCache: protected std::vector<T,Ta>
 	// =========================================================================
 	typedef std::vector<T,Ta> Base;
 
+	using typename Base::iterator;
 public:
 	using typename Base::reference;
 	using typename Base::const_pointer;
 	using typename Base::const_reference;
-	using typename Base::iterator; //make const too!
 	using typename Base::const_iterator;
 	using typename Base::size_type;
 	using typename Base::value_type;
+
+	//typedef const_iterator iterator;
 
 	/*
 		This is protected inheritance so we need to redeclare functions as
@@ -45,9 +47,9 @@ public:
 	*/
 
 	//    Base::assign;
-	using Base::at;
+	//    Base::at;
 	using Base::back;
-	using Base::begin;
+	//    Base::begin;
 	using Base::capacity;
 	using Base::cbegin;
 	using Base::cend;
@@ -75,6 +77,13 @@ public:
 	using Base::size;
 	//    Base::swap;
 
+	// At
+
+	const_reference at(size_type n) const
+	{
+		return Base::at(n);
+	}
+
 	// Assign
 
 	void assign(size_type n,const value_type& val)
@@ -96,6 +105,13 @@ public:
 		SetFull();
 	}
 
+	// Begin
+
+	const_iterator begin() const
+	{
+		return Base::begin();
+	};
+
 	// Clear
 
 	void clear()
@@ -115,7 +131,7 @@ public:
 	// Erase
 	// Fixes the range, always extend to last element.
 
-	iterator erase(iterator pos)
+	const_iterator erase(const_iterator pos)
 	{
 		iterator it=Base::erase(pos);
 		if (empty())
@@ -128,7 +144,7 @@ public:
 		return it;
 	}
 
-	iterator erase(iterator first, iterator last)
+	const_iterator erase(const_iterator first,const_iterator last)
 	{
 		iterator it=Base::erase(first,last);
 		if (empty())
