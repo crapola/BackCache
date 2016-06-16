@@ -57,13 +57,13 @@ public:
 	using Base::crbegin;
 	using Base::crend;
 	//    Base::data;
-	//using Base::emplace;
-	// using Base::emplace_back;
+	//----Base::emplace;
+	//----Base::emplace_back;
 	using Base::empty;
-	using Base::end;
+	//    Base::end;
 	//    Base::erase;
-	using Base::front;
-	//    Base::insert;
+	//    Base::front;
+	//    Base::insert; // TODO: insert
 	using Base::max_size;
 	//    Base::operator=;
 	using Base::operator[]; // Using base's const version
@@ -77,15 +77,7 @@ public:
 	using Base::size;
 	//    Base::swap;
 
-	// At
-
-	const_reference at(size_type n) const
-	{
-		return Base::at(n);
-	}
-
 	// Assign
-
 	void assign(size_type n,const value_type& val)
 	{
 		Base::assign(n,val);
@@ -105,15 +97,19 @@ public:
 		SetFull();
 	}
 
-	// Begin
+	// At
+	const_reference at(size_type n) const
+	{
+		return Base::at(n);
+	}
 
+	// Begin
 	const_iterator begin() const
 	{
 		return Base::begin();
 	};
 
 	// Clear
-
 	void clear()
 	{
 		Base::clear();
@@ -121,16 +117,19 @@ public:
 	}
 
 	// Data
-	// Only const access is allowed.
-
 	const_pointer data() const
 	{
 		return Base::data();
 	}
 
+	// End
+	const_iterator end() const
+	{
+		return Base::end();
+	}
+
 	// Erase
 	// Fixes the range, always extend to last element.
-
 	const_iterator erase(const_iterator pos)
 	{
 		iterator it=Base::erase(pos);
@@ -157,8 +156,13 @@ public:
 		return it;
 	}
 
-	// Insert
+	// Front
+	const_reference front() const
+	{
+		return Base::front();
+	}
 
+	// Insert
 	iterator insert(iterator pos, const T& x)
 	{
 		PNAME

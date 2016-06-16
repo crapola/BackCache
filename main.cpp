@@ -3,12 +3,18 @@
 
 using namespace std;
 
+static bool success=true;
+
 void TestResult(const BackCache<int>& tested,bool test)
 {
 	if (test)
 		cout<<"OK\n";
 	else
-		cout<<"\n***\n!!! ERROR !!!\n***\n";
+	{
+	cout<<"\n***\n!!! ERROR !!!\n***\n";
+	success=false;
+	}
+
 	tested.Info();
 	cout<<"--------------------------------------------------\n";
 }
@@ -36,32 +42,6 @@ int main()
 	// Range is reset/false on construction.
 	Test("Constructor",bc, {1,2,3,4,5},false);
 
-	/* Iterators
-		Only const iterators allowed.
-		at
-		begin
-	...
-
-	*/
-	{
-		BackCache<int>::const_iterator it=bc.begin();
-		// Should cause error:
-		//BackCache<int>::iterator it1=bc.begin();
-		//vector<int>::iterator it2=bc.begin();
-		//auto it3=bc.begin(); // Give vector const it
-		//*it3=1000;
-		bc.Info();
-	}
-	// At
-	// Only const reference
-	{
-		// Error:
-		/*
-		int& foo=bc.at(0);
-		foo=1111;
-		bc.Info();
-		*/
-	}
 	// Assign
 	// Range is set to full.
 	{
@@ -77,6 +57,20 @@ int main()
 		Test("assign(initlist)",bc, {1,2,3}, {0,2});
 		bc.assign({});
 		Test("assign(empty initlist)",bc, {},false);
+	}
+	// Clear
+	// Range reset.
+	{
+		bc.clear();
+		Test("clear",bc, {},false);
+	}
+	// Data
+	// Non const access should error.
+	{
+		bc= {1,2,3};
+		// int* dat=bc.data(); // error
+		const int* dat=bc.data(); // ok
+		std::cout<<"Data "<<dat[0]<<"\n";
 	}
 	// Erase
 	// Range enlarged and boundaries are corrected as needed.
@@ -109,22 +103,7 @@ int main()
 		bc.erase(bc.begin());
 		Test("erase(it) special case",bc, {2,3,4}, {0,2});
 	}
-	// Clear
-	// Range reset.
-	{
-		bc.clear();
-		Test("clear",bc, {},false);
-	}
-	// Data
-	// Non const access should error.
-	{
-		bc= {1,2,3};
-		// int* dat=bc.data(); // error
-		const int* dat=bc.data(); // ok
-		std::cout<<"Data "<<dat[0]<<"\n";
-		// dat[0]=9;// <-- error...
-		bc.Info();
-	}
+
 	// Insert
 	{
 	}
@@ -156,6 +135,7 @@ int main()
 			bc=bla;
 			Test("operator=V",bc,{3,2,1,0},true);
 		}*/
+	cout<<(success?"Everything is OK":"Mistakes were made")<<endl;
 	return 0;
 }
 
