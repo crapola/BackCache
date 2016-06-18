@@ -103,38 +103,29 @@ int main()
 		bc.erase(bc.begin());
 		Test("erase(it) special case",bc, {2,3,4}, {0,2});
 	}
-
 	// Insert
 	{
+		bc={1,2,3};
+		const int v=0;
+		bc.insert(bc.begin(),v);
+		Test("insert(const_iter,const T&)",bc,{0,1,2,3},{0,3});
+		bc.clear();
+		bc={1,2,3,4,5};
+		bc[1]=1;
+		bc.insert(bc.begin()+3,9);
+		Test("insert(const_iter,T&&)",bc,{1,1,3,9,4,5},{1,5});
+		bc.Reset();
+		bc.insert(bc.begin()+2,{8,7,6});
+		Test("insert(const_iter,initlist)",bc,{1,1,8,7,6,3,9,4,5},{2,8});
+		bc.clear();
+		bc.insert(bc.end(),{5,4,3});
+		Test("insert(const_iter,initlist)",bc,{5,4,3},{0,2});
+		bc.Reset();
+		Test("reset",bc,{5,4,3},false);
+		bc.insert(bc.begin()+2,5,7);
+		Test("insert(const_iter,size_t,const T&)",bc,{5,4,7,7,7,7,7,3},{2,7});
 	}
-	// Pop
-	{
-	}
-	// Push
-	{
-	}
-	// Resize
-	{
-	}
-	// Swap
-	{
-	}
-	// Operator[]
-	{
-	}
-	// Operator=BackCache: Copies the range state.
-	{
-		BackCache<int> foo{9,8,7,6,5};
-		bc=foo;
-		Test("operator=bc",bc, {9,8,7,6,5},false);
-	}
-	// Operator=vector
-	/*
-		{
-			vector<int> bla{3,2,1,0};
-			bc=bla;
-			Test("operator=V",bc,{3,2,1,0},true);
-		}*/
+
 	cout<<(success?"Everything is OK":"Mistakes were made")<<endl;
 	return 0;
 }

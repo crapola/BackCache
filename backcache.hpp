@@ -11,7 +11,7 @@
 #define DEBUG_BB
 #ifdef DEBUG_BB
 #include <iostream>
-#define PNAME std::cout<<"Call to "<<__FUNCTION__<<'\n';
+#define PNAME std::cout<<"Call to "<<__PRETTY_FUNCTION__<<'\n';
 #else
 #define PNAME
 #endif
@@ -25,6 +25,8 @@ class BackCache: protected std::vector<T,Ta>
 	typedef std::vector<T,Ta> Base;
 
 	using typename Base::iterator;
+	using Base::emplace;
+	using Base::emplace_back;
 public:
 	using typename Base::reference;
 	using typename Base::const_pointer;
@@ -128,6 +130,9 @@ public:
 		return Base::end();
 	}
 
+	// Emplace
+	// TODO: Emplace?
+
 	// Erase
 	// Fixes the range, always extend to last element.
 	const_iterator erase(const_iterator pos)
@@ -163,37 +168,48 @@ public:
 	}
 
 	// Insert
-	iterator insert(iterator pos, const T& x)
+	const_iterator insert(const_iterator pos, const T& x)
 	{
 		PNAME
-		iterator it=Base::insert(pos,x);
-		_range.Set(pos-begin(),size()-1);
-		return it;
+		_range.Add(pos-begin());
+		_range._to=size();
+		return Base::insert(pos,x);
 	}
 
-	void insert(iterator pos,std::initializer_list<T> l)
+	const_iterator insert(const_iterator pos,T&& x)
 	{
 		PNAME
-		Base::insert(pos,l);
-		_range.Set(pos-begin(),size()-1);
+		_range.Add(pos-begin());
+		_range._to=size();
+		return emplace(pos, std::move(x));
+		//return Base::insert(it,x);
 	}
 
-	void insert(iterator pos, size_type n, const T& x)
+	const_iterator insert(const_iterator pos,std::initializer_list<T> l)
+	{
+		PNAME
+		const_iterator rit=Base::insert(pos,l);
+		_range.Add(rit-begin());
+		_range._to=size()-1;
+		return rit;
+	}
+
+	const_iterator insert(const_iterator pos, size_type n, const T& x)
 	{
 		PNAME
 		Base::insert(pos,n,x);
 		_range.Set(pos-begin(),size()-1);
 	}
-
+/*
 	template<typename InputIterator>
-	void insert(iterator pos, InputIterator first,
+	const_iterator insert(iterator pos, InputIterator first,
 				InputIterator last)
 	{
 		PNAME
 		Base::insert(pos,first,last);
 		_range.Set(pos-begin(),size()-1);
 	}
-
+*/
 	// Operators
 
 	BackCache& operator=(const BackCache& o)
