@@ -124,6 +124,11 @@ int main()
 		Test("reset",bc,{5,4,3},false);
 		bc.insert(bc.begin()+2,5,7);
 		Test("insert(const_iter,size_t,const T&)",bc,{5,4,7,7,7,7,7,3},{2,7});
+		bc.insert(bc.begin()+1,bc.begin(),bc.begin()+3);
+		Test("insert(const_iter,inputiter,inputiter)",bc,{5,5,4,7,4,7,7,7,7,7,3},{1,10});
+	}
+	// Operator=
+	{
 	}
 
 	cout<<(success?"Everything is OK":"Mistakes were made")<<endl;

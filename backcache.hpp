@@ -65,9 +65,9 @@ public:
 	//    Base::end;
 	//    Base::erase;
 	//    Base::front;
-	//    Base::insert; // TODO: insert
+	//    Base::insert;
 	using Base::max_size;
-	//    Base::operator=;
+	//    Base::operator=; //TODO:
 	using Base::operator[]; // Using base's const version
 	//    Base::pop_back;
 	//    Base::push_back;
@@ -170,7 +170,6 @@ public:
 	// Insert
 	const_iterator insert(const_iterator pos, const T& x)
 	{
-		PNAME
 		_range.Add(pos-begin());
 		_range._to=size();
 		return Base::insert(pos,x);
@@ -178,38 +177,34 @@ public:
 
 	const_iterator insert(const_iterator pos,T&& x)
 	{
-		PNAME
 		_range.Add(pos-begin());
 		_range._to=size();
 		return emplace(pos, std::move(x));
-		//return Base::insert(it,x);
 	}
 
 	const_iterator insert(const_iterator pos,std::initializer_list<T> l)
 	{
-		PNAME
-		const_iterator rit=Base::insert(pos,l);
-		_range.Add(rit-begin());
-		_range._to=size()-1;
-		return rit;
+		_range.Add(pos-begin());
+		_range._to=size()+l.size()-1;
+		return Base::insert(pos,l);
 	}
 
 	const_iterator insert(const_iterator pos, size_type n, const T& x)
 	{
-		PNAME
-		Base::insert(pos,n,x);
-		_range.Set(pos-begin(),size()-1);
+		_range.Add(pos-begin(),size()+n-1);
+		return Base::insert(pos,n,x);
 	}
-/*
-	template<typename InputIterator>
-	const_iterator insert(iterator pos, InputIterator first,
-				InputIterator last)
+
+	// Non-type template parameter with an optional name.
+	template<typename InputIterator,
+			 typename=std::_RequireInputIter<InputIterator>>
+	const_iterator insert(const_iterator pos, InputIterator first,
+						  InputIterator last)
 	{
-		PNAME
-		Base::insert(pos,first,last);
-		_range.Set(pos-begin(),size()-1);
+		_range.Add(pos-begin(),size()+last-first-1);
+		return Base::insert(pos,first,last);
 	}
-*/
+
 	// Operators
 
 	BackCache& operator=(const BackCache& o)
