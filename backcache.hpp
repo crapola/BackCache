@@ -67,7 +67,7 @@ public:
 	//    Base::front;
 	//    Base::insert;
 	using Base::max_size;
-	//    Base::operator=; //TODO:
+	//    Base::operator=;
 	using Base::operator[]; // Using base's const version
 	//    Base::pop_back;
 	//    Base::push_back;
@@ -206,20 +206,12 @@ public:
 	}
 
 	// Operators
-
 	BackCache& operator=(const BackCache& o)
 	{
 		Base::operator=(o);
 		_range=o._range;
 		return *this;
 	}
-
-	/*BackCache& operator=(const Base& o)
-	{
-		Base::operator=(o);
-		SetFullRange();
-		return *this;
-	}*/
 
 	reference operator[](size_type n)
 	{
@@ -228,8 +220,7 @@ public:
 		return Base::operator[](n);
 	}
 
-	// Push/Pop
-
+	// Push&Pop
 	void pop_back()
 	{
 		PNAME
@@ -391,11 +382,11 @@ private:
 	*/
 #ifdef DEBUG_BB
 public:
-	size_t RangeFrom() const
+	size_t From() const
 	{
 		return _range.From();
 	}
-	size_t RangeTo() const
+	size_t To() const
 	{
 		return _range.To();
 	}

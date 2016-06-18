@@ -1,4 +1,5 @@
 #include "backcache.hpp"
+#include <cassert>
 #include <iostream>
 
 using namespace std;
@@ -29,7 +30,7 @@ void Test(const char* what,const BackCache<int>& tested,const vector<int> expect
 {
 	cout<<what<<": ";
 	TestResult(tested,(tested==expected)&&
-			   (tested.RangeFrom()==range.first&&tested.RangeTo()==range.second));
+			   (tested.From()==range.first&&tested.To()==range.second));
 
 }
 
@@ -128,6 +129,37 @@ int main()
 		Test("insert(const_iter,inputiter,inputiter)",bc,{5,5,4,7,4,7,7,7,7,7,3},{1,10});
 	}
 	// Operator=
+	{
+		BackCache<int> other(12,1);
+		other[9]=9;
+		other[2]=2;
+		other[4]=4;
+		Test("operator[]",other,{1,1,2,1,4,1,1,1,1,9,1,1},{2,9});
+		other.Info();
+		bc=other;
+		Test("operator=(BackCache&)",bc,{1,1,2,1,4,1,1,1,1,9,1,1},{2,9});
+		// TODO: add =vector..?
+	}
+	// Operator[]
+	{
+		bc.Reset();
+		int foo=bc[7]; // This is considered a write!
+		Test("operator[]",bc,{1,1,2,1,4,1,1,1,1,9,1,1},{7,7});
+		// Must use const container to read only
+		const BackCache<int>& cbc=bc;
+		const int& bar=cbc[6];
+		Test("operator[]",bc,{1,1,2,1,4,1,1,1,1,9,1,1},{7,7});
+		Test("operator[]",cbc,{1,1,2,1,4,1,1,1,1,9,1,1},{7,7});
+		assert(&bc==&cbc);
+		// Or use at() to guarantee read only
+		const int& value=bc.at(3);
+		Test("at",bc,{1,1,2,1,4,1,1,1,1,9,1,1},{7,7});
+	}
+	// Pop
+	{
+		//TODO
+	}
+	// Push
 	{
 	}
 
