@@ -24,18 +24,17 @@ class BackCache: protected std::vector<T,Ta>
 	// =========================================================================
 	typedef std::vector<T,Ta> Base;
 
-	using typename Base::iterator;
 	using Base::emplace;
 	using Base::emplace_back;
-public:
+	using typename Base::iterator;
 	using typename Base::reference;
+public:
 	using typename Base::const_pointer;
 	using typename Base::const_reference;
+	using typename Base::const_reverse_iterator;
 	using typename Base::const_iterator;
 	using typename Base::size_type;
 	using typename Base::value_type;
-
-	//typedef const_iterator iterator;
 
 	/*
 		This is protected inheritance so we need to redeclare functions as
@@ -71,8 +70,8 @@ public:
 	using Base::operator[]; // Using base's const version
 	//    Base::pop_back;
 	//    Base::push_back;
-	using Base::rbegin;
-	using Base::rend;
+	//    Base::rbegin;
+	//    Base::rend;
 	using Base::reserve;
 	//    Base::resize;
 	using Base::shrink_to_fit;
@@ -215,7 +214,6 @@ public:
 
 	reference operator[](size_type n)
 	{
-		PNAME
 		_range.Add(n);
 		return Base::operator[](n);
 	}
@@ -223,30 +221,37 @@ public:
 	// Push&Pop
 	void pop_back()
 	{
-		PNAME
 		Base::pop_back();
-		_range.Set(_range.From(),size()-1);
-
+		_range.Cap(size()-1);
 	}
 
 	void push_back(const T& x)
 	{
-		PNAME
 		Base::push_back(x);
 		_range.Add(size()-1,size()-1);
 	}
 
 	void push_back(T&& x)
 	{
-		PNAME
 		Base::push_back(x);
 		_range.Add(size()-1,size()-1);
+	}
+
+	// Reversie iterators
+
+	const_reverse_iterator rbegin() const
+	{
+		return Base::rbegin();
+	}
+
+	const_reverse_iterator rend() const
+	{
+		return Base::rend();
 	}
 
 	// Resize. Fix the range.
 	void resize(size_type ns)
 	{
-		PNAME
 		Base::resize(ns);
 		_range.Set(_range.From(),std::min(_range.To(),size()-1));
 	}
@@ -262,6 +267,10 @@ public:
 	// BackCache
 	// =========================================================================
 public:
+	size_type From() const
+	{
+		return _range.From();
+	}
 	size_type RangeSize() const
 	{
 
@@ -284,6 +293,11 @@ public:
 			_range.Set(0,size()-1);
 		else
 			_range.Reset();
+	}
+
+	size_type To() const
+	{
+		return _range.To();
 	}
 
 	void Info() const
@@ -317,26 +331,20 @@ private:
 		{
 			if (n<_from) _from=n;
 			if (n>_to) _to=n;
-#ifdef DEBUG_BB
-			std::cout<<"Add("<<n<<")\n";
-#endif
 		}
+
 		void Add(size_type f,size_type t)
 		{
-#ifdef DEBUG_BB
-			std::cout<<"AddRange("<<f<<", "<<t<<")\n";
-#endif
 			if (f<_from) _from=f;
 			if (t>_to) _to=t;
-#ifdef DEBUG_BB
-			std::cout<<"RANGE is now "<<_from<<" to "<<_to<<"\n";
-#endif
 		}
+
 		// Cap end of range to s
 		void Cap(size_type s)
 		{
 			_to=(_to>s)?s:_to;
 		}
+
 		size_type From() const
 		{
 			return _from;
@@ -346,27 +354,25 @@ private:
 			_from=MAXSIZE;
 			_to=0;
 		}
+
 		// Redefine the range, ingoring previous state.
 		void Set(size_type f,size_type t)
 		{
-#ifdef DEBUG_BB
-			std::cout<<"SetRange("<<f<<", "<<t<<")\n";
-#endif
 			_from=f;
 			_to=t;
-#ifdef DEBUG_BB
-			std::cout<<"RANGE is now "<<_from<<" to "<<_to<<"\n";
-#endif
 		}
+
 		size_type Size() const
 		{
 			if (!Pending()) return 0;
 			return _to-_from+1;
 		}
+
 		size_type To() const
 		{
 			return _to;
 		}
+
 		operator bool() const // True if pending, valid range.
 		{
 			return _from<=_to;
@@ -380,17 +386,6 @@ private:
 		Class member initialization.used so we don't have to
 		rewrite all the constructors.
 	*/
-#ifdef DEBUG_BB
-public:
-	size_t From() const
-	{
-		return _range.From();
-	}
-	size_t To() const
-	{
-		return _range.To();
-	}
-#endif
 };
 
 // Compare to normal vector

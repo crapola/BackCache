@@ -17,7 +17,7 @@ void TestResult(const BackCache<int>& tested,bool test)
 	}
 
 	tested.Info();
-	cout<<"--------------------------------------------------\n";
+	cout<<"----------------------------------------\n";
 }
 
 void Test(const char* what,const BackCache<int>& tested,const vector<int> expected,bool pending)
@@ -156,11 +156,33 @@ int main()
 		Test("at",bc,{1,1,2,1,4,1,1,1,1,9,1,1},{7,7});
 	}
 	// Pop
+	// Only caps the range.
 	{
-		//TODO
+		bc={1,2,3,4,5};
+		bc.pop_back();
+		Test("pop",bc,{1,2,3,4},false);
+		bc[3];
+		bc.pop_back();
+		Test("pop",bc,{1,2,3},false);
+		bc[1];
+		bc.pop_back();
+		Test("pop",bc,{1,2},{1,1});
 	}
 	// Push
 	{
+		bc.push_back(1000);
+		Test("push(T&&)",bc,{1,2,1000},{1,2});
+		const int i=2000;
+		bc.push_back(i);
+		Test("push(const T&)",bc,{1,2,1000,2000},{1,3});
+	}
+	// rbegin & rend
+	{
+        auto it=bc.rbegin();
+		//*it=1111;
+		int x=*it;
+		it=bc.rend()-1;
+		//*it=4444;
 	}
 
 	cout<<(success?"Everything is OK":"Mistakes were made")<<endl;
